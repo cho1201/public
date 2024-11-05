@@ -1,0 +1,33 @@
+#include <LiquidCrystal.h>
+// RS, E, D7, D6, D5, D4
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.clear();
+  pinMode(10,OUTPUT);
+  digitalWrite(10,HIGH);
+  Serial2.begin(9600);
+}
+int data[5] = {0,0,0,0,0};
+
+int i = 0;
+
+int cnt[5] = {0, 0, 0, 0, 0};
+void loop() {
+  if(Serial2.available()>0){
+    if(cnt[i] == 0){
+      data[i] = Serial2.read();
+      cnt[i] = 1;
+    }
+    else i++;
+      if(i > 4){
+        for (int j = 0;j<5;j++)cnt[j] = 0;
+      }
+  }
+  lcd.setCursor(0,0);
+  for (int k = 0;k<5;k++){
+    lcd.print(data[k]);
+  }
+}
