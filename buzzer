@@ -1,0 +1,16 @@
+#include "pitches.h"
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(A0, INPUT);
+}
+
+int data = 0;
+
+void loop() {
+  data = analogRead(A0);
+  Serial.println(data);
+  delay(200);
+  if (data < 80) tone(22, NOTE_C4);
+  
+}
