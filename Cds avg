@@ -1,0 +1,38 @@
+#include <LiquidCrystal.h>
+LiquidCrystal lcd={8,9,4,5,6,7};
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.clear();
+  pinMode(10,OUTPUT);
+  digitalWrite(10,HIGH);
+  Serial.begin(9600);
+  pinMode(A0, INPUT);
+  pinMode(13,INPUT);
+}
+
+int sum,cnt = 0;
+int data[5] = {0,};
+float avg = 0;
+
+void loop() {
+  if(digitalRead(13) == LOW && cnt == 0){
+    for (int i = 0 ; i < 5 ; i++){
+      data[i] = analogRead(A0);
+      Serial.println(data[i]);
+      delay(200);
+      sum += data[i];
+      cnt = 1;
+
+    }
+  } 
+  if(digitalRead(13) == HIGH) cnt = 0;
+
+  avg = sum / 5;
+  lcd.setCursor(0,0);
+  lcd.print("Average:");
+  lcd.setCursor(0,1);
+  lcd.print(avg);
+  
+  
+}
