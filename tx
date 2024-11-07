@@ -5,12 +5,12 @@ void setup() {
 int i[5] = {0, 1, 2, 3, 4};
 int cnt = 0;
 int click = 0;
+
 void loop() {
   if(digitalRead(13) == LOW && click == 0){
     for(int j =0; j<5; j++){
-      i[j] += 5;
       Serial2.write(i[j]);
-      delay(100);
+      i[j] += 5;
     }
     cnt++;
     click = 1;
