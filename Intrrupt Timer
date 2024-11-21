@@ -1,0 +1,54 @@
+#include <TimerOne.h>
+
+int seg[][8]={  {1,1,1,1,1,1,0,0},
+                {0,1,1,0,0,0,0,0}, 
+                {1,1,0,1,1,0,1,0},
+                {1,1,1,1,0,0,1,0},
+                {0,1,1,0,0,1,1,0},
+                {1,0,1,1,0,1,1,0}, 
+                {1,0,1,1,1,1,1,0}, 
+                {1,1,1,0,0,0,0,0},
+                {1,1,1,1,1,1,1,0},
+                {1,1,1,1,0,1,1,1}};
+
+int seg_pins[] = {2,3,4,5,6,7,8,9};
+int sel_pins[] = {14,15,16,17,18,19};
+int cnt[4] ={0,0,0,0};
+int t=0;
+
+void setup() {
+  Timer1.initialize(10000);
+  Timer1.attachInterrupt(blink);
+  for (int i = 0; i < 8; i++) {
+    pinMode(seg_pins[i], OUTPUT);
+    pinMode(sel_pins[i], OUTPUT);
+    digitalWrite(seg_pins[i], LOW);
+    digitalWrite(sel_pins[i], HIGH);
+  }
+}
+
+void loop() {
+  for (int i=0;i<4;i++){
+    digitalWrite(sel_pins[i],LOW);
+    for (int j=0;j<7;j++){
+      digitalWrite(seg_pins[j],seg[cnt[i]][j]);
+    }
+  if (i==2) digitalWrite(9,1);
+  else digitalWrite(9,0);
+  delay(1);
+  digitalWrite(sel_pins[i],HIGH);
+  }
+}
+
+
+
+void blink(){
+  cnt[0]++;
+  for (int i=0;i<4;i++){
+    if(cnt[i]==10){
+      cnt[i]=0;
+      if (i<3) cnt[i+1]++;
+    }
+  }
+}
+
