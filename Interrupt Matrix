@@ -1,0 +1,43 @@
+#include <TimerOne.h>
+
+int row_pins[] = {2, 3, 4, 5, 6, 7, 8, 9};
+int col_pins[] = {14, 15, 16, 17, 18, 19, 20, 21}; 
+int led[][8] = {  
+    {1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 0, 0, 1, 1, 1},
+    {1, 1, 0, 0, 0, 0, 1, 1},
+    {1, 0, 0, 1, 1, 0, 0, 1},
+    {0, 0, 1, 1, 1, 1, 0, 0},
+    {0, 1, 1, 1, 1, 1, 1, 0}
+};
+
+void setup() {
+  Timer1.initialize(300000);
+  Timer1.attachInterrupt(blink);
+  for (int i = 0; i < 8; i++) {
+    pinMode(row_pins[i], OUTPUT);
+    pinMode(col_pins[i], OUTPUT);
+    digitalWrite(row_pins[i], LOW);
+    digitalWrite(col_pins[i], HIGH);
+  }
+}
+
+int offset = 0;
+
+void loop() {
+
+    for (int i = 0; i < 8; i++) {
+        digitalWrite(row_pins[i], 1);      
+        for (int j = 0; j < 8; j++) {
+            digitalWrite(col_pins[j], led[(i + offset) % 8][j]); 
+        }
+        delayMicroseconds(1); 
+        digitalWrite(row_pins[i], 0);
+      }
+
+}
+void blink(){
+  offset = (offset + 1) % 8;
+}
