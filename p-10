@@ -1,0 +1,290 @@
+comparisons = 0  # 비교 횟수
+moves = 0  # 데이터 이동 횟수
+
+import queue
+
+def printStep(arr, val):
+    print("  Step %2d = " % val, end='')
+    print(arr)
+
+def selection_sort(A):
+    n = len(A)
+    global comparisons
+    global moves
+    for i in range(n-1):
+        least = i
+        for j in range(i+1, n):
+            comparisons += 1  # 비교
+            if (A[j] < A[least]):
+                least = j
+        if least != i:
+            A[i], A[least] = A[least], A[i]
+            moves += 2  # 2번의 데이터 이동 (A[i], A[least] 교환)
+        printStep(A, i + 1)
+    print("Selection Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+def insertion_sort(A):
+    n = len(A)
+    global comparisons
+    global moves
+    for i in range(1, n):
+        key = A[i]
+        j = i-1
+        while j >= 0 and A[j] > key:
+            comparisons += 1  # 비교
+            A[j + 1] = A[j]
+            moves += 1  # 데이터 이동
+            j -= 1
+        if j >= 0:  # 마지막 비교
+            comparisons += 1
+        A[j + 1] = key
+        moves += 1  # key 값 이동
+        printStep(A, i)
+    print("Insertion Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+def bubble_sort(A):
+    n = len(A)
+    global comparisons
+    global moves
+    for i in range(n-1, 0, -1):
+        bChanged = False
+        for j in range(i):
+            comparisons += 1  # 비교
+            if (A[j] > A[j+1]):
+                A[j], A[j+1] = A[j+1], A[j]
+                moves += 2  # 2번의 데이터 이동 (A[j], A[j+1] 교환)
+                bChanged = True
+        if not bChanged: break
+        printStep(A, n - i)
+    print("Bubble Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+def heapify(arr, n, i):
+    largest = i
+    l = 2 * i + 1
+    r = 2 * i + 2
+    comparisons = 0  # 비교 횟수
+    moves = 0  # 데이터 이동 횟수
+
+    if l < n and arr[i] < arr[l]:
+        largest = l
+        comparisons += 1
+    if r < n and arr[largest] < arr[r]:
+        largest = r
+        comparisons += 1
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        moves += 2  # 2번의 데이터 이동 (arr[i], arr[largest] 교환)
+        heapify(arr, n, largest)
+    return comparisons, moves
+
+def heapSort(arr):
+    n = len(arr)
+    global comparisons
+    global moves
+    for i in range(n//2, -1, -1):
+        c, m = heapify(arr, n, i)
+        comparisons += c
+        moves += m
+    for i in range(n-1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        moves += 2  # 2번의 데이터 이동 (arr[i], arr[0] 교환)
+        c, m = heapify(arr, i, 0)
+        comparisons += c
+        moves += m
+    print("Heap Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+sorted = [0]*100
+
+def merge_sort(A, left, right):
+    global comparisons
+    global moves
+    if left < right:
+        mid = (left + right) // 2
+        c1, m1 = merge_sort(A, left, mid)
+        c2, m2 = merge_sort(A, mid + 1, right)
+        comparisons += c1 + c2
+        moves += m1 + m2
+        merge(A, left, mid, right)
+    return comparisons, moves
+    
+def merge(A, left, mid, right):
+    global sorted
+    k = left
+    i = left
+    j = mid + 1
+    global comparisons
+    global moves
+    while i <= mid and j <= right:
+        comparisons += 1  # 비교
+        if A[i] <= A[j]:
+            sorted[k] = A[i]
+            moves += 1  # 데이터 이동
+            i, k = i+1, k+1
+        else:
+            sorted[k] = A[j]
+            moves += 1  # 데이터 이동
+            j, k = j+1, k+1
+    if i > mid:
+        sorted[k:k+right-j+1] = A[j:right+1]
+        moves += right - j + 1  # 데이터 이동
+    else:
+        sorted[k:k+mid-i+1] = A[i:mid+1]
+        moves += mid - i + 1  # 데이터 이동
+    A[left:right+1] = sorted[left:right+1]
+    return comparisons, moves
+
+def quick_sort(A, left, right):
+    global comparisons
+    global moves
+    if left < right:
+        q, c, m = partition(A, left, right)
+        comparisons += c
+        moves += m
+        comparisons_left, moves_left = quick_sort(A, left, q - 1)
+        comparisons_right, moves_right = quick_sort(A, q + 1, right)
+        comparisons += comparisons_left + comparisons_right
+        moves += moves_left + moves_right
+    return comparisons, moves
+
+def partition(A, left, right):
+    low = left + 1
+    high = right
+    pivot = A[left]
+    global comparisons
+    global moves
+    while (low < high):
+        while low <= right and A[low] < pivot:
+            low += 1
+            comparisons += 1
+        while high >= left and A[high] > pivot:
+            high -= 1
+            comparisons += 1
+        if low < high:
+            A[low], A[high] = A[high], A[low]
+            moves += 2  # 2번의 데이터 이동 (A[low], A[high] 교환)
+    A[left], A[high] = A[high], A[left]
+    moves += 2  # 2번의 데이터 이동 (A[left], A[high] 교환)
+    return high, comparisons, moves
+
+
+def radix_sort(A):
+    global comparisons
+    global moves
+    queues = []
+    for i in range(BUCKETS):
+        queues.append(queue.Queue())
+    n = len(A)
+    factor = 1
+    for d in range(DIGITS):
+        for i in range(n):
+            queues[(A[i] // factor) % BUCKETS].put(A[i])
+            moves += 1  # 데이터 이동
+        i = 0
+        for b in range(BUCKETS):
+            while not queues[b].empty():
+                A[i] = queues[b].get()
+                i += 1
+                moves += 1  # 데이터 이동
+        factor *= 10
+        printStep(A, d + 1)
+    print("Radix Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+BUCKETS = 10
+DIGITS = 4
+
+def sortGapInsertion(A, first, last, gap):
+    global comparisons
+    global moves
+    for i in range(first+gap, last+1, gap):
+        key = A[i]
+        j = i - gap
+        while j >= first and key < A[j]:
+            comparisons += 1  # 비교
+            A[j + gap] = A[j]
+            moves += 1  # 데이터 이동
+            j = j - gap
+        if j >= first:  # 마지막 비교
+            comparisons += 1
+        A[j + gap] = key
+        moves += 1  # 데이터 이동
+    return comparisons, moves
+
+def shell_sort(A):
+    n = len(A)
+    global comparisons
+    global moves
+    gap = n // 2
+    while gap > 0:
+        if (gap % 2) == 0:
+            gap += 1
+        for i in range(gap):
+            c, m = sortGapInsertion(A, i, n - 1, gap)
+            comparisons += c
+            moves += m
+        gap = gap // 2
+    print("Shell Sort: Comparisons = ", comparisons, ", Moves = ", moves)
+
+
+def SEL(A):
+    print("Original  :", org)
+    selection_sort(data)
+    print("Selection :", data)
+def INS(A):
+    print("Original  :", org)
+    insertion_sort(data)
+    print("Insertion :", data)
+def BUB(A):
+    print("Original  :", org)
+    bubble_sort(data)
+    print("Bubble    :", data)
+def HEA(A):		
+    print("Orignial:", org)
+    heapSort(data)
+    print("Heap:", data)
+def MER(A):
+    print("Original  : ", org)
+    merge_sort(data, 0, len(data)-1)
+    print("Merge     : ", data)
+def QUI(A):
+    print("Original  :", org)
+    quick_sort(data, 0, len(data)-1)
+    print("Quick     :", data)
+def SHE(A):
+    print("Original  :", org)
+    shell_sort(data)
+    print("Shell     :", data)
+def RAD(A):
+    print("Before sorting:", org)
+    radix_sort(data)
+    print("After sorting:", data)
+
+
+def menu():
+    global comparisons
+    global moves
+    print("")
+    print("----------------Target Sorting Algorithm List--------------")
+    print("Selection(SEL), Insertion(INS), Bubble(BUB), Shell(SHE),")
+    print("Heap(HEA), Merge(MER), Quick(QUI), Radix(RAD)")
+    print("-----------------------------------------------------------")
+    while(True):
+        comparisons = 0  # 비교 횟수
+        moves = 0  # 데이터 이동 횟수
+        a = input("Select sorting algorithm : ")
+        if (a=="SEL"): SEL(data)
+        if (a=="INS"): INS(data)
+        if (a=="BUB"): BUB(data)
+        if (a=="SHE"): SHE(data)
+        if (a=="HEA"): HEA(data)
+        if (a=="MER"): MER(data)
+        if (a=="QUI"): QUI(data)
+        if (a=="RAD"): RAD(data)
+        if (a=="Q"): exit()  # 여기 수정: exit() 호출
+        else:
+            menu()
+
+input_str = input("Enter a list of numbers separated by commas: ")
+org = list(map(int, input_str.split(',')))
+data = list(org)
+          
+menu()
